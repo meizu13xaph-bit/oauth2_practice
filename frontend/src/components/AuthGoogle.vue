@@ -33,28 +33,16 @@ export default {
   },
   mounted() {
     const queryParams = new URLSearchParams(window.location.search);
-    const code = queryParams.get('code')
-    const state = queryParams.get('state')
+    const userName = queryParams.get('userName');
+    const picUrl = queryParams.get('picUrl');
+    const fileNames = queryParams.get('fileNames');
 
-    if (code && state) {
-      fetch('http://localhost:8000/auth/google/callback', {
-        body: JSON.stringify({ code, state }),
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-      })
-        .then(res => {
-          if (!res.ok) {
-            throw new Error('Ошибка сервера')
-          }
-          return res.json()
-        })
-        .then(data => {
-          this.picUrl = data.user.picture
-          this.userName = data.user.name
-          this.fileNames = data.files
-        })
+    if (userName && picUrl) {
+      this.userName = userName;
+      this.picUrl = picUrl;
+      this.fileNames = fileNames ? fileNames.split(',') : [];
     } else {
-      this.message = '⚠️ Нет параметра code';
+      this.message = '⚠️ Не удалось получить данные пользователя.';
     }
   },
 };

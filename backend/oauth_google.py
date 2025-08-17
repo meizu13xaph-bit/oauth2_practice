@@ -11,7 +11,7 @@ def generate_google_oauth_redirect_uri():
 
     query_params = {
         "client_id": settings.OAUTH_GOOGLE_CLIENT_ID,
-        "redirect_uri": "http://localhost:3000/auth/google",
+        "redirect_uri": "http://localhost:8000/auth/google/callback",
         "response_type": "code",
         "scope": " ".join([
             "https://www.googleapis.com/auth/drive",

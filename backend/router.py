@@ -1,6 +1,7 @@
 from typing import Annotated
-from fastapi import APIRouter, Body
+from fastapi import APIRouter, Body, Query
 from fastapi.responses import RedirectResponse
+import urllib.parse
 
 import aiohttp
 import jwt
@@ -18,10 +19,10 @@ def get_google_oauth_redirect_uri():
     return RedirectResponse(url=uri, status_code=302)
 
 
-@router.post("/google/callback")
+@router.get("/google/callback")
 async def handle_code(
-    code: Annotated[str, Body()],
-    state: Annotated[str, Body()],
+    code: str,
+    state: str,
 ):
     if state not in state_storage:
         raise
@@ -36,7 +37,7 @@ async def handle_code(
                 "client_id": settings.OAUTH_GOOGLE_CLIENT_ID,
                 "client_secret": settings.OAUTH_GOOGLE_CLIENT_SECRET,
                 "grant_type": "authorization_code",
-                "redirect_uri": "http://localhost:3000/auth/google",
+                "redirect_uri": "http://localhost:8000/auth/google/callback",
                 "code": code,
             },
             ssl=False,
@@ -63,7 +64,12 @@ async def handle_code(
             print(f"{res=}")
             files = [item["name"] for item in res["files"]]
 
-    return {
-        "user": user_data,
-        "files": files,
+    redirect_url = "http://localhost:3000/auth/google"
+    params = {
+        "userName": user_data.get("name"),
+        "picUrl": user_data.get("picture"),
+        "fileNames": ",".join(files)
     }
+    encoded_params = urllib.parse.urlencode(params)
+
+    return RedirectResponse(f"{redirect_url}?{encoded_params}")
