@@ -1,0 +1,27 @@
+# VSCode
+.vscode/
+
+# JetBrains IDE
+.idea/
+
+# Node
+node_modules/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Environment
+.env
+.env.*
+
+# MacOS
+.DS_Store
+
+# Logs
+*.log
+
+# System
+Thumbs.db
