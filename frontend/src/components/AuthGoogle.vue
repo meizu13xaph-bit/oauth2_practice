@@ -1,19 +1,53 @@
+<!--
+  Этот шаблон отвечает за отображение контента страницы.
+  Он показывает разное содержимое в зависимости от состояния аутентификации.
+-->
 <template>
   <div class="auth-page">
+    <!-- Ссылка для возврата на главную страницу -->
     <RouterLink to="/" class="back-link">← На главную</RouterLink>
     <div class="container">
+      <!--
+        Этот заголовок отображается, пока имя пользователя еще не загружено.
+        v-if="!userName" означает "показывать этот элемент, только если userName пуст".
+      -->
       <h1 class="loading-text" v-if="!userName">Обработка авторизации...</h1>
+
+      <!--
+        Этот блок для вывода сообщений об ошибках или информационных сообщений.
+        v-if="message" означает "показывать, только если есть какое-то сообщение".
+      -->
       <div v-if="message" class="message">
         {{ message }}
       </div>
+
+      <!--
+        Этот блок приветствия появляется после успешной загрузки данных пользователя.
+        v-if="userName" означает "показывать, только когда userName не пуст".
+        <strong>{{ userName }}</strong> вставляет имя пользователя в текст.
+      -->
       <div v-if="userName" class="welcome">
         Добро пожаловать, <strong>{{ userName }}</strong>!
       </div>
+
+      <!--
+        Изображение аватара пользователя.
+        v-if="picUrl" - показывается только если есть URL картинки.
+        :src="picUrl" - привязывает атрибут src картинки к данным picUrl.
+      -->
       <img v-if="picUrl" :src="picUrl" class="avatar" />
 
+      <!--
+        Секция для отображения списка файлов пользователя с Google Drive.
+        v-if="fileNames.length" - показывается, только если массив fileNames не пустой.
+      -->
       <div v-if="fileNames.length" class="files">
         <h2>Ваши файлы в Google Drive:</h2>
         <ul>
+          <!--
+            v-for="file in fileNames" - это цикл, который создает элемент <li> для каждого файла в массиве fileNames.
+            :key="file" - это обязательный атрибут для Vue, чтобы отслеживать элементы в списке.
+          -->
           <li v-for="file in fileNames" :key="file">{{ file }}</li>
         </ul>
       </div>
@@ -23,43 +57,63 @@
 
 <script>
 export default {
+  // data() - это функция, которая возвращает начальное состояние компонента.
   data() {
     return {
-      message: '',
-      userName: '',
-      picUrl: '',
-      fileNames: [],
+      message: '',    // Для хранения сообщений об ошибках или статусе
+      userName: '',   // Для хранения имени пользователя
+      picUrl: '',     // Для хранения URL аватара пользователя
+      fileNames: [],  // Массив для хранения имен файлов с Google Drive
     };
   },
+  // mounted() - это "хук жизненного цикла". Код внутри него выполняется автоматически
+  // сразу после того, как компонент будет создан и вставлен в страницу.
   mounted() {
+    // Получаем параметры из URL-адреса страницы (например, ?code=...&state=...)
     const queryParams = new URLSearchParams(window.location.search);
+    // Извлекаем 'code' (код авторизации от Google)
     const code = queryParams.get('code')
+    // Извлекаем 'state' (случайная строка для защиты от CSRF-атак)
     const state = queryParams.get('state')
 
+    // Проверяем, что и code, и state присутствуют в URL
     if (code && state) {
+      // Если да, то отправляем их на наш бэкенд для обмена на токен доступа
       fetch('http://localhost:8000/auth/google/callback', {
+        method: 'POST', // Используем метод POST
+        headers: { 'Content-Type': 'application/json' }, // Указываем, что отправляем JSON
+        // Тело запроса: отправляем code и state в формате JSON
         body: JSON.stringify({ code, state }),
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
       })
+        // .then() обрабатывает ответ от сервера
         .then(res => {
+          // Если ответ не успешный (например, ошибка 500), выбрасываем ошибку
           if (!res.ok) {
             throw new Error('Ошибка сервера')
           }
+          // Преобразуем ответ из JSON в объект JavaScript
           return res.json()
         })
+        // Второй .then() получает данные, которые вернул сервер
         .then(data => {
-          this.picUrl = data.user.picture
-          this.userName = data.user.name
-          this.fileNames = data.files
+          // Обновляем состояние компонента данными, полученными от бэкенда
+          this.picUrl = data.user.picture;   // URL аватара
+          this.userName = data.user.name;    // Имя пользователя
+          this.fileNames = data.files;       // Список файлов
         })
     } else {
+      // Если 'code' или 'state' отсутствуют в URL, выводим сообщение об ошибке
       this.message = '⚠️ Нет параметра code';
     }
   },
 };
 </script>
 
+<!--
+  <style scoped>
+  'scoped' означает, что эти CSS-стили применяются ТОЛЬКО к этому компоненту.
+  Они не повлияют на другие части вашего приложения, что помогает избежать конфликтов стилей.
+-->
 <style scoped>
 .auth-page {
   min-height: 100vh;
