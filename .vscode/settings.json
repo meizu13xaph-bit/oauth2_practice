@@ -122,13 +122,13 @@
             "text": "|     AI $(layout-sidebar-right)     |",
             "command": "workbench.action.toggleAuxiliaryBar",
             "alignment": "left",
-            "priority": 900
+            "priority": 35
         },
         {
             "text": "Term  $(terminal)     |",
             "command": "workbench.action.terminal.toggleTerminal",
             "alignment": "left",
-            "priority": 800
+            "priority": 30
         },
         {
             "text": "runTask     |",
@@ -137,7 +137,7 @@
                 "Run PowerShell black."
             ],
             "alignment": "left",
-            "priority": 700
+            "priority": 25
         },
         {
             "text": "black     |",
@@ -148,7 +148,7 @@
                 }
             ],
             "alignment": "left",
-            "priority": 600
+            "priority": 20
         }
     ]
 }
