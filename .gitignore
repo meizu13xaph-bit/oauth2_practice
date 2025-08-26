@@ -1,5 +1,5 @@
 # VSCode
-.vscode/
+#.vscode/
 
 # JetBrains IDE
 .idea/
@@ -9,19 +9,24 @@ node_modules/
 
 # Python
 __pycache__/
+*/__pycache__/
 *.pyc
 *.pyo
 *.pyd
+venv/
+.venv/
 
 # Environment
 .env
 .env.*
+
 
 # MacOS
 .DS_Store
 
 # Logs
 *.log
+log/
 
 # System
 Thumbs.db

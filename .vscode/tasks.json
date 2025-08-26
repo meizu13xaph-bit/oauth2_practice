@@ -1,0 +1,26 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Run PowerShell black.",
+            "type": "shell",
+            "command": "black .",
+            "presentation": {
+                "panel": "shared", // переиспользовать один общий терминал
+                "clear": false,
+                "close": false,
+                "reveal": "always"
+            },
+            "options": {
+                "cwd": "${workspaceFolder}",
+                "shell": {
+                    "executable": "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
+                    "args": [
+                        "\"${workspaceFolder}\\.venv\\Scripts\\Activate.ps1\";"
+                    ]
+                }
+            },
+            "problemMatcher": []
+        }
+    ]
+}

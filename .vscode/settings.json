@@ -1,0 +1,44 @@
+{
+    "command-runner.terminal.name": "runner",
+    "command-runner.terminal.autoClear": false,
+    "command-runner.terminal.autoFocus": true,
+    "command-runner.commands": {
+        "echo file - venv Activate": "echo ${file}",
+        "start formatter Py = black .": "black ."
+    },
+   
+    "statusbar_command.commands": [
+        {
+            "text": "|     AI $(layout-sidebar-right)     |",
+            "command": "workbench.action.toggleAuxiliaryBar",
+            "alignment": "left",
+            "priority": 900
+        },
+        {
+            "text": "Term  $(terminal)     |",
+            "command": "workbench.action.terminal.toggleTerminal",
+            "alignment": "left",
+            "priority": 800
+        },
+        {
+            "text": "runTask     |",
+            "command": "workbench.action.tasks.runTask",
+            "arguments": [
+                "Run PowerShell black."
+            ],
+            "alignment": "left",
+            "priority": 700
+        },
+        {
+            "text": "black     |",
+            "command": "workbench.action.terminal.sendSequence",
+            "arguments": [
+                {
+                    "text": "powershell black .\r"
+                }
+            ],
+            "alignment": "left",
+            "priority": 600
+        }
+    ]
+}
