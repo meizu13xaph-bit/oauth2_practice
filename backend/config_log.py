@@ -9,11 +9,13 @@ LOG_FILE = "example.log"
 class ConfigLogger:
     pathLoggerDir = LOG_DIR
     nameFileLogger = LOG_FILE
-    isSetting = False  # для того чтобы settingLogger() вызвать один раз при запуске программы
+    isSetting = (
+        False  # для того чтобы settingLogger() вызвать один раз при запуске программы
+    )
 
     @staticmethod
     def __create_log_dir(pathDir):
-        """ Создание папки для лог-файлов """
+        """Создание папки для лог-файлов"""
         if not os.path.exists(pathDir):
             os.mkdir(pathDir)
 
@@ -37,9 +39,9 @@ class ConfigLogger:
 
     @staticmethod
     def get_logger(nameBase):
-        """ nameBase берётся из словаря = 'loggers'
-            OnlyFile = логгер будет писать в файл, в консоль не будет
-            Stdout = только в консоль; FileStdout = и в консоль и в файл
+        """nameBase берётся из словаря = 'loggers'
+        OnlyFile = логгер будет писать в файл, в консоль не будет
+        Stdout = только в консоль; FileStdout = и в консоль и в файл
         """
         if not ConfigLogger.isSetting:
             ConfigLogger.__settings_logger()
@@ -47,60 +49,53 @@ class ConfigLogger:
 
 
 def create_config_dict(pathLoggerDir, nameFileLogger):
-    logging_config = \
-        {
-            "version": 1,
-            "disable_existing_loggers": False,
-            "formatters": {
-                "form1": {
-                    "format": "/* %(asctime)s - %(module)s.%(funcName)s(%(lineno)d) - [%(threadName)s] - %(thread)d - [%(processName)s] - %(process)d */ -> \n%(levelname)s: %(message)s"
-                },
-                "form2": {
-                    "format": "/* %(asctime)s - %(module)s.%(funcName)s(%(lineno)d) - [%(threadName)s] - [%(thread)d] */  \n%(levelname)s: %(message)s"
-                },
-                "form3": {
-                    "format": "/* %(asctime)s - %(module)s.%(funcName)s(%(lineno)d) - %(name)s */ -> \n%(levelname)s: %(message)s"
-                },
-                "form4": {
-                    "format": "/* %(asctime)s - %(module)s.%(funcName)s(%(lineno)d) - [%(processName)s] - %(process)d */ -> \n%(levelname)s: %(message)s"
-                },
-                "con1": {
-                    "format": "%(asctime)s - %(module)s.%(funcName)s(%(lineno)d) - [%(threadName)s] - [%(thread)d] \n > %(levelname)s: %(message)s"
-                },
-                "con2": {
-                    "format": "%(asctime)s - %(module)s.%(funcName)s(%(lineno)d) - [%(threadName)s] - [%(thread)d] > %(levelname)s: %(message)s"
-                }
+    logging_config = {
+        "version": 1,
+        "disable_existing_loggers": False,
+        "formatters": {
+            "form1": {
+                "format": "/* %(asctime)s - %(module)s.%(funcName)s(%(lineno)d) - [%(threadName)s] - %(thread)d - [%(processName)s] - %(process)d */ -> \n%(levelname)s: %(message)s"
             },
-            "handlers": {
-                "rotating_file1": {
-                    "class": "logging.handlers.RotatingFileHandler",
-                    "level": "INFO",
-                    "formatter": "form2",
-                    "filename": f"{pathLoggerDir}/{nameFileLogger}",
-                    "maxBytes": 1048576,
-                    "backupCount": 20
-                },
-                "console1": {
-                    "class": "logging.StreamHandler",
-                    "level": "INFO",
-                    "formatter": "con2",
-                    "stream": "ext://sys.stdout"
-                }
+            "form2": {
+                "format": "/* %(asctime)s - %(module)s.%(funcName)s(%(lineno)d) - [%(threadName)s] - [%(thread)d] */  \n%(levelname)s: %(message)s"
             },
-            "loggers": {
-                "Stdout": {
-                    "handlers": ["console1"],
-                    "level": "DEBUG"
-                },
-                "FileStdout": {
-                    "handlers": ["rotating_file1", "console1"],
-                    "level": "DEBUG"
-                },
-                "OnlyFile": {
-                    "handlers": ["rotating_file1"],
-                    "level": "DEBUG"
-                }
-            }
-        }
+            "form3": {
+                "format": "/* %(asctime)s - %(module)s.%(funcName)s(%(lineno)d) - %(name)s */ -> \n%(levelname)s: %(message)s"
+            },
+            "form4": {
+                "format": "/* %(asctime)s - %(module)s.%(funcName)s(%(lineno)d) - [%(processName)s] - %(process)d */ -> \n%(levelname)s: %(message)s"
+            },
+            "con1": {
+                "format": "%(asctime)s - %(module)s.%(funcName)s(%(lineno)d) - [%(threadName)s] - [%(thread)d] \n > %(levelname)s: %(message)s"
+            },
+            "con2": {
+                "format": "%(asctime)s - %(module)s.%(funcName)s(%(lineno)d) - [%(threadName)s] - [%(thread)d] > %(levelname)s: %(message)s"
+            },
+        },
+        "handlers": {
+            "rotating_file1": {
+                "class": "logging.handlers.RotatingFileHandler",
+                "level": "INFO",
+                "formatter": "form2",
+                "filename": f"{pathLoggerDir}/{nameFileLogger}",
+                "maxBytes": 1048576,
+                "backupCount": 20,
+            },
+            "console1": {
+                "class": "logging.StreamHandler",
+                "level": "INFO",
+                "formatter": "con2",
+                "stream": "ext://sys.stdout",
+            },
+        },
+        "loggers": {
+            "Stdout": {"handlers": ["console1"], "level": "DEBUG"},
+            "FileStdout": {
+                "handlers": ["rotating_file1", "console1"],
+                "level": "DEBUG",
+            },
+            "OnlyFile": {"handlers": ["rotating_file1"], "level": "DEBUG"},
+        },
+    }
 
     return logging_config
