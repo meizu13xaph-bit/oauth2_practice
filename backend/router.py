@@ -1,6 +1,8 @@
 # Импортируем необходимые типы и классы из FastAPI и других библиотек
+import json
+import base64
 from typing import Annotated
-from fastapi import APIRouter, Body
+from fastapi import APIRouter, Body, Request
 from fastapi.responses import RedirectResponse
 
 import aiohttp  # Для асинхронных HTTP-запросов
@@ -24,14 +26,15 @@ def get_google_oauth_redirect_uri():
 
 
 # Эндпоинт для обработки callback от Google после авторизации
-@router.post("/google/callback")
-async def handle_code(
-    code: Annotated[str, Body()],  # Код авторизации от Google
-    state: Annotated[str, Body()],  # State для защиты от CSRF
-):
+@router.get("/google/callback")
+async def handle_google_callback(request: Request):
+    # Получаем code и state из query параметров
+    code = request.query_params.get('code')
+    state = request.query_params.get('state')
+
     # Проверяем, что state был ранее сгенерирован и сохранен
     if state not in state_storage:
-        raise  # Если state не найден — ошибка (можно добавить кастомные исключение)
+        raise Exception("Invalid state") # Если state не найден — ошибка (можно добавить кастомные исключение)
     else:
         print("Стейт корректный")
     # URL для обмена кода на токен
@@ -45,7 +48,7 @@ async def handle_code(
                 "client_id": settings.OAUTH_GOOGLE_CLIENT_ID,  # ID клиента из настроек
                 "client_secret": settings.OAUTH_GOOGLE_CLIENT_SECRET,  # Секрет клиента
                 "grant_type": "authorization_code",  # Тип запроса
-                "redirect_uri": "http://localhost:3000/auth/google",  # Должен совпадать с тем, что в Google Console
+                "redirect_uri": "http://localhost:8000/auth/google/callback",  # Должен совпадать с тем, что в Google Console
                 "code": code,  # Код авторизации
             },
             ssl=False,
@@ -70,10 +73,17 @@ async def handle_code(
         ) as response:
             res = await response.json()  # Получаем список файлов
             print(f"{res=}")
-            files = [item["name"] for item in res["files"]]  # Извлекаем имена файлов
+            files = [item["name"] for item in res.get("files", [])]  # Извлекаем имена файлов
 
-    # Возвращаем данные пользователя и список файлов на фронтенд список
-    return {
+    # Готовим данные для передачи на фронтенд
+    frontend_data = {
         "user": user_data,
         "files": files,
     }
+
+    # Кодируем данные в Base64
+    json_data = json.dumps(frontend_data).encode('utf-8')
+    token = base64.b64encode(json_data).decode('utf-8')
+
+    # Перенаправляем пользователя на фронтенд с токеном
+    return RedirectResponse(url=f"http://localhost:3000/auth/google?token={token}")

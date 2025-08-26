@@ -69,41 +69,29 @@ export default {
   // mounted() - это "хук жизненного цикла". Код внутри него выполняется автоматически
   // сразу после того, как компонент будет создан и вставлен в страницу.
   mounted() {
-    // Получаем параметры из URL-адреса страницы (например, ?code=...&state=...)
+    // Получаем параметры из URL-адреса страницы (например, ?token=...)
     const queryParams = new URLSearchParams(window.location.search);
-    // Извлекаем 'code' (код авторизации от Google)
-    const code = queryParams.get('code')
-    // Извлекаем 'state' (случайная строка для защиты от CSRF-атак)
-    const state = queryParams.get('state')
+    // Извлекаем 'token'
+    const token = queryParams.get('token');
 
-    // Проверяем, что и code, и state присутствуют в URL
-    if (code && state) {
-      // Если да, то отправляем их на наш бэкенд для обмена на токен доступа
-      fetch('http://localhost:8000/auth/google/callback', {
-        method: 'POST', // Используем метод POST
-        headers: { 'Content-Type': 'application/json' }, // Указываем, что отправляем JSON
-        // Тело запроса: отправляем code и state в формате JSON
-        body: JSON.stringify({ code, state }),
-      })
-        // .then() обрабатывает ответ от сервера
-        .then(res => {
-          // Если ответ не успешный (например, ошибка 500), выбрасываем ошибку
-          if (!res.ok) {
-            throw new Error('Ошибка сервера')
-          }
-          // Преобразуем ответ из JSON в объект JavaScript
-          return res.json()
-        })
-        // Второй .then() получает данные, которые вернул сервер
-        .then(data => {
-          // Обновляем состояние компонента данными, полученными от бэкенда
-          this.picUrl = data.user.picture;   // URL аватара
-          this.userName = data.user.name;    // Имя пользователя
-          this.fileNames = data.files;       // Список файлов
-        })
+    if (token) {
+      try {
+        // Декодируем токен из Base64
+        const decodedJson = atob(token);
+        // Парсим JSON-строку в объект
+        const data = JSON.parse(decodedJson);
+
+        // Обновляем состояние компонента данными из токена
+        this.picUrl = data.user.picture;   // URL аватара
+        this.userName = data.user.name;    // Имя пользователя
+        this.fileNames = data.files;       // Список файлов
+      } catch (error) {
+        console.error("Ошибка при декодировании токена:", error);
+        this.message = '⚠️ Ошибка обработки данных. Неверный формат токена.';
+      }
     } else {
-      // Если 'code' или 'state' отсутствуют в URL, выводим сообщение об ошибке
-      this.message = '⚠️ Нет параметра code';
+      // Если 'token' отсутствует в URL, выводим сообщение об ошибке
+      this.message = '⚠️ Токен авторизации не найден.';
     }
   },
 };

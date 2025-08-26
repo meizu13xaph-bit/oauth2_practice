@@ -15,7 +15,7 @@ def generate_google_oauth_redirect_uri():
     # Формируем параметры запроса для OAuth авторизации Google
     query_params = {
         "client_id": settings.OAUTH_GOOGLE_CLIENT_ID,  # ID клиента из Google Console
-        "redirect_uri": "http://localhost:3000/auth/google",  # URL для возврата после авторизации
+        "redirect_uri": "http://localhost:8000/auth/google/callback",  # URL для возврата после авторизации
         "response_type": "code",  # Тип ответа — код авторизации
         "scope": " ".join(
             [
