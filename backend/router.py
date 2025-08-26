@@ -1,7 +1,9 @@
 # Импортируем необходимые типы и классы из FastAPI и других библиотек
+import urllib.parse
 from typing import Annotated
-from fastapi import APIRouter, Body
+from fastapi import APIRouter, Query
 from fastapi.responses import RedirectResponse
+import json
 
 import aiohttp  # Для асинхронных HTTP-запросов
 import jwt  # Для декодирования JWT-токена
@@ -24,10 +26,10 @@ def get_google_oauth_redirect_uri():
 
 
 # Эндпоинт для обработки callback от Google после авторизации
-@router.post("/google/callback")
+@router.get("/google/callback")
 async def handle_code(
-    code: Annotated[str, Body()],  # Код авторизации от Google
-    state: Annotated[str, Body()],  # State для защиты от CSRF
+    code: Annotated[str, Query()],  # Код авторизации от Google
+    state: Annotated[str, Query()],  # State для защиты от CSRF
 ):
     # Проверяем, что state был ранее сгенерирован и сохранен
     if state not in state_storage:
@@ -45,7 +47,7 @@ async def handle_code(
                 "client_id": settings.OAUTH_GOOGLE_CLIENT_ID,  # ID клиента из настроек
                 "client_secret": settings.OAUTH_GOOGLE_CLIENT_SECRET,  # Секрет клиента
                 "grant_type": "authorization_code",  # Тип запроса
-                "redirect_uri": "http://localhost:3000/auth/google",  # Должен совпадать с тем, что в Google Console
+                "redirect_uri": "http://localhost:8000/auth/google/callback",  # Должен совпадать с тем, что в Google Console
                 "code": code,  # Код авторизации
             },
             ssl=False,
@@ -72,8 +74,15 @@ async def handle_code(
             print(f"{res=}")
             files = [item["name"] for item in res["files"]]  # Извлекаем имена файлов
 
-    # Возвращаем данные пользователя и список файлов на фронтенд список
-    return {
-        "user": user_data,
-        "files": files,
+    # Готовим параметры для перенаправления на фронтенд
+    redirect_params = {
+        "userName": user_data.get("name"),
+        "picUrl": user_data.get("picture"),
+        "fileNames": json.dumps(files) # Сериализуем список файлов в JSON-строку
     }
+
+    # URL-кодируем параметры
+    encoded_params = urllib.parse.urlencode(redirect_params)
+
+    # Перенаправляем пользователя на фронтенд с данными в URL
+    return RedirectResponse(url=f"http://localhost:3000/auth/google?{encoded_params}")

@@ -69,41 +69,30 @@ export default {
   // mounted() - это "хук жизненного цикла". Код внутри него выполняется автоматически
   // сразу после того, как компонент будет создан и вставлен в страницу.
   mounted() {
-    // Получаем параметры из URL-адреса страницы (например, ?code=...&state=...)
+    // Получаем параметры из URL-адреса страницы, на который нас перенаправил бэкенд
     const queryParams = new URLSearchParams(window.location.search);
-    // Извлекаем 'code' (код авторизации от Google)
-    const code = queryParams.get('code')
-    // Извлекаем 'state' (случайная строка для защиты от CSRF-атак)
-    const state = queryParams.get('state')
 
-    // Проверяем, что и code, и state присутствуют в URL
-    if (code && state) {
-      // Если да, то отправляем их на наш бэкенд для обмена на токен доступа
-      fetch('http://localhost:8000/auth/google/callback', {
-        method: 'POST', // Используем метод POST
-        headers: { 'Content-Type': 'application/json' }, // Указываем, что отправляем JSON
-        // Тело запроса: отправляем code и state в формате JSON
-        body: JSON.stringify({ code, state }),
-      })
-        // .then() обрабатывает ответ от сервера
-        .then(res => {
-          // Если ответ не успешный (например, ошибка 500), выбрасываем ошибку
-          if (!res.ok) {
-            throw new Error('Ошибка сервера')
-          }
-          // Преобразуем ответ из JSON в объект JavaScript
-          return res.json()
-        })
-        // Второй .then() получает данные, которые вернул сервер
-        .then(data => {
-          // Обновляем состояние компонента данными, полученными от бэкенда
-          this.picUrl = data.user.picture;   // URL аватара
-          this.userName = data.user.name;    // Имя пользователя
-          this.fileNames = data.files;       // Список файлов
-        })
+    const userName = queryParams.get('userName');
+    const picUrl = queryParams.get('picUrl');
+    const fileNamesParam = queryParams.get('fileNames');
+
+    // Проверяем, что обязательные параметры (имя пользователя) есть в URL
+    if (userName) {
+      this.userName = userName;
+      this.picUrl = picUrl;
+
+      // Параметр fileNames приходит как JSON-строка, поэтому его нужно распарсить
+      if (fileNamesParam) {
+        try {
+          this.fileNames = JSON.parse(fileNamesParam);
+        } catch (e) {
+          console.error("Ошибка парсинга имен файлов:", e);
+          this.message = '⚠️ Не удалось загрузить список файлов.';
+        }
+      }
     } else {
-      // Если 'code' или 'state' отсутствуют в URL, выводим сообщение об ошибке
-      this.message = '⚠️ Нет параметра code';
+      // Если данных пользователя нет, выводим сообщение об ошибке
+      this.message = '⚠️ Не удалось получить данные пользователя.';
     }
   },
 };
