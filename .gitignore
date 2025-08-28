@@ -1,14 +1,32 @@
-.idea/
-idea
+# VSCode
+#.vscode/
 
-venv/
+# JetBrains IDE
+.idea/
+
+# Node
+node_modules/
+
+# Python
 __pycache__/
 */__pycache__/
+*.pyc
+*.pyo
+*.pyd
+venv/
+.venv/
 
+# Environment
+.env
+.env.*
+
+
+# MacOS
+.DS_Store
+
+# Logs
 *.log
 log/
 
-
-
-pg_db/
-db.sqlite3
+# System
+Thumbs.db

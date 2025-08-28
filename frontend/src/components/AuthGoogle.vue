@@ -1,19 +1,53 @@
+<!--
+  Этот шаблон отвечает за отображение контента страницы.
+  Он показывает разное содержимое в зависимости от состояния аутентификации.
+-->
 <template>
   <div class="auth-page">
+    <!-- Ссылка для возврата на главную страницу -->
     <RouterLink to="/" class="back-link">← На главную</RouterLink>
     <div class="container">
+      <!--
+        Этот заголовок отображается, пока имя пользователя еще не загружено.
+        v-if="!userName" означает "показывать этот элемент, только если userName пуст".
+      -->
       <h1 class="loading-text" v-if="!userName">Обработка авторизации...</h1>
+
+      <!--
+        Этот блок для вывода сообщений об ошибках или информационных сообщений.
+        v-if="message" означает "показывать, только если есть какое-то сообщение".
+      -->
       <div v-if="message" class="message">
         {{ message }}
       </div>
+
+      <!--
+        Этот блок приветствия появляется после успешной загрузки данных пользователя.
+        v-if="userName" означает "показывать, только когда userName не пуст".
+        <strong>{{ userName }}</strong> вставляет имя пользователя в текст.
+      -->
       <div v-if="userName" class="welcome">
         Добро пожаловать, <strong>{{ userName }}</strong>!
       </div>
+
+      <!--
+        Изображение аватара пользователя.
+        v-if="picUrl" - показывается только если есть URL картинки.
+        :src="picUrl" - привязывает атрибут src картинки к данным picUrl.
+      -->
       <img v-if="picUrl" :src="picUrl" class="avatar" />
 
+      <!--
+        Секция для отображения списка файлов пользователя с Google Drive.
+        v-if="fileNames.length" - показывается, только если массив fileNames не пустой.
+      -->
       <div v-if="fileNames.length" class="files">
         <h2>Ваши файлы в Google Drive:</h2>
         <ul>
+          <!--
+            v-for="file in fileNames" - это цикл, который создает элемент <li> для каждого файла в массиве fileNames.
+            :key="file" - это обязательный атрибут для Vue, чтобы отслеживать элементы в списке.
+          -->
           <li v-for="file in fileNames" :key="file">{{ file }}</li>
         </ul>
       </div>
@@ -23,43 +57,52 @@
 
 <script>
 export default {
+  // data() - это функция, которая возвращает начальное состояние компонента.
   data() {
     return {
-      message: '',
-      userName: '',
-      picUrl: '',
-      fileNames: [],
+      message: '',    // Для хранения сообщений об ошибках или статусе
+      userName: '',   // Для хранения имени пользователя
+      picUrl: '',     // Для хранения URL аватара пользователя
+      fileNames: [],  // Массив для хранения имен файлов с Google Drive
     };
   },
+  // mounted() - это "хук жизненного цикла". Код внутри него выполняется автоматически
+  // сразу после того, как компонент будет создан и вставлен в страницу.
   mounted() {
+    // Получаем параметры из URL-адреса страницы, на который нас перенаправил бэкенд
     const queryParams = new URLSearchParams(window.location.search);
-    const code = queryParams.get('code')
-    const state = queryParams.get('state')
 
-    if (code && state) {
-      fetch('http://localhost:8000/auth/google/callback', {
-        body: JSON.stringify({ code, state }),
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-      })
-        .then(res => {
-          if (!res.ok) {
-            throw new Error('Ошибка сервера')
-          }
-          return res.json()
-        })
-        .then(data => {
-          this.picUrl = data.user.picture
-          this.userName = data.user.name
-          this.fileNames = data.files
-        })
+    const userName = queryParams.get('userName');
+    const picUrl = queryParams.get('picUrl');
+    const fileNamesParam = queryParams.get('fileNames');
+
+    // Проверяем, что обязательные параметры (имя пользователя) есть в URL
+    if (userName) {
+      this.userName = userName;
+      this.picUrl = picUrl;
+
+      // Параметр fileNames приходит как JSON-строка, поэтому его нужно распарсить
+      if (fileNamesParam) {
+        try {
+          this.fileNames = JSON.parse(fileNamesParam);
+        } catch (e) {
+          console.error("Ошибка парсинга имен файлов:", e);
+          this.message = '⚠️ Не удалось загрузить список файлов.';
+        }
+      }
     } else {
-      this.message = '⚠️ Нет параметра code';
+      // Если данных пользователя нет, выводим сообщение об ошибке
+      this.message = '⚠️ Не удалось получить данные пользователя.';
     }
   },
 };
 </script>
 
+<!--
+  <style scoped>
+  'scoped' означает, что эти CSS-стили применяются ТОЛЬКО к этому компоненту.
+  Они не повлияют на другие части вашего приложения, что помогает избежать конфликтов стилей.
+-->
 <style scoped>
 .auth-page {
   min-height: 100vh;

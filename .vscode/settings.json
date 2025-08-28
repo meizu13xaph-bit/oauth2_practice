@@ -1,0 +1,154 @@
+{
+    "editor.stickyScroll.enabled": false,
+
+    "workbench.colorCustomizations": {
+        "editorBracketHighlight.foreground1": "#FF0000",
+        "editorBracketHighlight.foreground2": "#FF0000",
+        "editorBracketHighlight.foreground3": "#FF0000",
+        "editorBracketHighlight.foreground4": "#FF0000",
+        "editorBracketHighlight.foreground5": "#FF0000",
+        "editorBracketHighlight.foreground6": "#FF0000",
+        "editorBracketHighlight.unexpectedBracket.foreground": "#FF0000"
+    },
+
+    "editor.tokenColorCustomizations": {
+        "textMateRules": [
+            {
+                "scope": "comment",
+                "settings": {
+                    "foreground": "#6A9955",
+                    "fontStyle": "italic"
+                }
+            },
+            {
+                "scope": "keyword.control",
+                "settings": {
+                    "foreground": "#569CD6",
+                    "fontStyle": "bold"
+                }
+            },
+            {
+                // Операторы (+, -, *, =, ==, in, is, and, or, not)
+                "scope": "keyword.operator",
+                "settings": {
+                    "foreground": "#ea2c1b"
+                }
+            },
+            {
+                "scope": "storage.type",
+                "settings": {
+                    "foreground": "#569CD6",
+                    "fontStyle": "bold"
+                }
+            },
+            {
+                "scope": "entity.name.class",
+                "settings": {
+                    "foreground": "#4EC9B0",
+                    "fontStyle": "bold"
+                }
+            },
+            {
+                "scope": "entity.name.function",
+                "settings": {
+                    "foreground": "#DCDCAA"
+                }
+            },
+            {
+                "scope": "string",
+                "settings": {
+                    "foreground": "#ac71c9"
+                }
+            },
+            {
+                "scope": "constant.numeric",
+                "settings": {
+                    "foreground": "#B5CEA8"
+                }
+            },
+            {
+                "scope": "constant.language",
+                "settings": {
+                    "foreground": "#C586C0",
+                    "fontStyle": "bold"
+                }
+            },
+            {
+                // Переменные
+                "scope": "variable",
+                "settings": {
+                    "foreground": "#f1b356"
+                }
+            },
+            {
+                "scope": "variable.parameter",
+                "settings": {
+                    "foreground": "#9CDCFE"
+                }
+            },
+            {
+                // Встроенные функции (print, len, range)
+                "scope": "entity.name.function.builtin.python",
+                "settings": {
+                    "foreground": "#66f36d"
+                }
+            },
+            {
+                "scope": "punctuation.separator",
+                "settings": {
+                    "foreground": "#d31616"
+                }
+            },
+            {
+                "scope": "meta.decorator.python",
+                "settings": {
+                    "foreground": "#4EC9B0",
+                    "fontStyle": "italic"
+                }
+            }
+        ]
+    },
+
+    "command-runner.terminal.name": "runner",
+    "command-runner.terminal.autoClear": false,
+    "command-runner.terminal.autoFocus": true,
+    "command-runner.commands": {
+        "echo file - venv Activate": "echo ${file}",
+        "start formatter Py = black .": "black ."
+    },
+
+    "statusbar_command.commands": [
+        {
+            "text": "|     AI $(layout-sidebar-right)     |",
+            "command": "workbench.action.toggleAuxiliaryBar",
+            "alignment": "left",
+            "priority": 35
+        },
+        {
+            "text": "Term  $(terminal)     |",
+            "command": "workbench.action.terminal.toggleTerminal",
+            "alignment": "left",
+            "priority": 30
+        },
+        {
+            "text": "runTask     |",
+            "command": "workbench.action.tasks.runTask",
+            "arguments": [
+                "Run PowerShell black."
+            ],
+            "alignment": "left",
+            "priority": 25
+        },
+        {
+            "text": "black     |",
+            "command": "workbench.action.terminal.sendSequence",
+            "arguments": [
+                {
+                    "text": "powershell black .\r"
+                }
+            ],
+            "alignment": "left",
+            "priority": 20
+        }
+    ]
+}
