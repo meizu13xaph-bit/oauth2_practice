@@ -1,4 +1,7 @@
 # Импорт стандартных библиотек для работы с URL и генерации случайных строк
+from config_log import ConfigLogger
+logF = ConfigLogger.get_logger("OnlyFile")
+
 import urllib.parse
 import secrets
 

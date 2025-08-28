@@ -1,4 +1,7 @@
 # Импортируем необходимые типы и классы из FastAPI и других библиотек
+from config_log import ConfigLogger
+logF = ConfigLogger.get_logger("OnlyFile")
+
 import urllib.parse
 from typing import Annotated
 from fastapi import APIRouter, Query
@@ -20,7 +23,9 @@ router = APIRouter(prefix="/auth")
 @router.get("/google/url")
 def get_google_oauth_redirect_uri():
     # Генерируем ссылку для авторизации через Google
-    uri = generate_google_oauth_redirect_uri()
+    uri: str = generate_google_oauth_redirect_uri()
+    logF.info(f"{uri}")
+    
     # Перенаправляем пользователя на эту ссылку
     return RedirectResponse(url=uri, status_code=302)
 
