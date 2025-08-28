@@ -1,0 +1,14 @@
+.idea/
+idea
+
+venv/
+__pycache__/
+*/__pycache__/
+
+*.log
+log/
+
+
+
+pg_db/
+db.sqlite3
